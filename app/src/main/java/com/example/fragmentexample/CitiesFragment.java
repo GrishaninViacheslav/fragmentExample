@@ -19,6 +19,7 @@ public class CitiesFragment extends Fragment {
 
     public static final String CURRENT_CITY = "CurrentCity";
     private int currentPosition = 0;    // Текущая позиция (выбранный город)
+    private City currentCity;
     private boolean isLandscape;
 
     // При создании фрагмента укажем его макет
@@ -55,7 +56,8 @@ public class CitiesFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     currentPosition = fi;
-                    showCoatOfArms(currentPosition);
+                    currentCity = new City(fi, getResources().getStringArray(R.array.cities)[fi]);
+                    showCoatOfArms(currentCity);
                 }
             });
         }
@@ -65,6 +67,7 @@ public class CitiesFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(CURRENT_CITY, currentPosition);
+        outState.putParcelable(CURRENT_CITY, currentCity);
         super.onSaveInstanceState(outState);
     }
 
@@ -81,26 +84,30 @@ public class CitiesFragment extends Fragment {
         if (savedInstanceState != null) {
             // Восстановление текущей позиции.
             currentPosition = savedInstanceState.getInt(CURRENT_CITY, 0);
+            currentCity = savedInstanceState.getParcelable(CURRENT_CITY);
+        } else {
+            // Если восстановить не удалось, то сделаем объект с первым индексом
+            currentCity = new City(0, getResources().getStringArray(R.array.cities)[0]);
         }
 
         // Если можно нарисовать рядом герб, то сделаем это
         if (isLandscape) {
-            showLandCoatOfArms(currentPosition);
+            showLandCoatOfArms(currentCity);
         }
     }
 
-    private void showCoatOfArms(int index) {
+    private void showCoatOfArms(City currentCity) {
         if (isLandscape) {
-            showLandCoatOfArms(index);
+            showLandCoatOfArms(currentCity);
         } else {
-            showPortCoatOfArms(index);
+            showPortCoatOfArms(currentCity);
         }
     }
 
     // Показать герб в ландшафтной ориентации
-    private void showLandCoatOfArms(int index) {
+    private void showLandCoatOfArms(City currentCity) {
         // Создаём новый фрагмент с текущей позицией для вывода герба
-        CoatOfArmsFragment detail = CoatOfArmsFragment.newInstance(index);
+        CoatOfArmsFragment detail = CoatOfArmsFragment.newInstance(currentCity);
 
         // Выполняем транзакцию по замене фрагмента
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
@@ -111,12 +118,12 @@ public class CitiesFragment extends Fragment {
     }
 
     // Показать герб в портретной ориентации
-    private void showPortCoatOfArms(int index) {
+    private void showPortCoatOfArms(City currentCity) {
         // Откроем вторую activity
         Intent intent = new Intent();
         intent.setClass(getActivity(), CoatOfArmsActivity.class);
         // и передадим туда параметры
-        intent.putExtra(CoatOfArmsFragment.ARG_INDEX, index);
+        intent.putExtra(CoatOfArmsFragment.ARG_CITY, currentCity);
         startActivity(intent);
     }
 }
