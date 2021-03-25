@@ -1,5 +1,6 @@
 package com.example.fragmentexample;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +34,7 @@ public class CitiesFragment extends Fragment {
         String[] cities = getResources().getStringArray(R.array.cities);
 
         // В этом цикле создаём элемент TextView,
-        // заполняем его значениями,
+        // заполняем его значениями
         // и добавляем на экран.
         // Кроме того, создаём обработку касания на элемент
         for(int i=0; i < cities.length; i++){
@@ -42,7 +43,23 @@ public class CitiesFragment extends Fragment {
             tv.setText(city);
             tv.setTextSize(30);
             layoutView.addView(tv);
+            final int fi = i;
+            tv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showPortCoatOfArms(fi);
+                }
+            });
         }
     }
-}
 
+    // Показать герб в портретной ориентации.
+    private void showPortCoatOfArms(int index) {
+        // Откроем вторую activity
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), CoatOfArmsActivity.class);
+        // и передадим туда параметры
+        intent.putExtra(CoatOfArmsFragment.ARG_INDEX, index);
+        startActivity(intent);
+    }
+}
